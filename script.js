@@ -106,7 +106,7 @@ getCountryDataAndNeighbor('germany'); */
 
 //const request = fetch(`https://restcountries.eu/rest/v2/name/portugal`);
 
-const getJson = function(url, errorMsg = 'Something went wrong.') {
+/* const getJson = function(url, errorMsg = 'Something went wrong.') {
     return fetch(url)
     .then(response => {
         if(!response.ok) throw new Error(`${errorMsg}`);
@@ -131,4 +131,31 @@ const getCountryData = function(country) {
     .finally(() => countriesContainer.style.opacity = 1);
 }
 
-getCountryData('philippines');
+getCountryData('philippines'); */
+
+
+///
+//Using async and await from new versions of ES (JS).
+//
+
+const getPosition = function() {
+    return new Promise( function(resolve, reject) {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+}
+
+const getLocation = async function(){
+    const pos = await getPosition();
+    const {latitude: lat, longitude: lng} = pos.coords;
+
+    const resGeo = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    const dataGeo = await resGeo.json();
+    console.log(dataGeo);
+    const res = await fetch(`https://restcountries.eu/rest/v2/name/${dataGeo.prov}`);
+    const data = await res.json();
+    console.log(data[0])
+    renderCountry(data[0]);
+    countriesContainer.style.opacity = 1;
+};
+
+getLocation();
