@@ -5,9 +5,12 @@ const countriesContainer = document.querySelector('.countries');
 
 ///////////////////////////////////////
 
+///
 //old way of making ajax calls and consuming promises
+///
 
-const getCountryData = function(country) {
+
+/* const getCountryData = function(country) {
 const request = new XMLHttpRequest();
 request.open('GET', `https://restcountries.eu/rest/v2/name/${country}`);
 request.send();
@@ -35,4 +38,68 @@ request.addEventListener('load', function(){
 }
 
 getCountryData('philippines');
-getCountryData('united states of america');
+getCountryData('united states of america'); */
+
+
+///
+//simulate async callback that can lead to callback hell
+///
+
+const renderCountry = function(data, className = '') {
+    
+        console.log(data);
+    
+        const html = `
+        <article class="country ${className}">
+            <img class="country__img" src="${data.flag}" />
+            <div class="country__data">
+            <h3 class="country__name">${data.name}</h3>
+            <h4 class="country__region">${data.region}</h4>
+            <p class="country__row"><span>👫</span>${(+data.population / 1000000).toFixed(1)}</p>
+            <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
+            <p class="country__row"><span>💰</span>${data.currencies[0].name}</p>
+            </div>
+        </article>`;
+    
+        countriesContainer.insertAdjacentHTML('beforeend', html);
+    
+        countriesContainer.style.opacity = 1;
+}
+
+const getCountryDataAndNeighbor = function(country) {
+    const request = new XMLHttpRequest();
+    request.open('GET', `https://restcountries.eu/rest/v2/name/${country}`);
+    request.send();
+    
+    request.addEventListener('load', function(){
+        const [data] = JSON.parse(this.responseText);
+
+        //get country
+        renderCountry(data);
+
+        //get neighbor country
+        const [neighbor] = data.borders;
+
+        if(!neighbor) return;
+
+        const request2 = new XMLHttpRequest();
+        request2.open('GET', `https://restcountries.eu/rest/v2/alpha/${neighbor}`);
+        request2.send();
+
+        request2.addEventListener('load', function(){
+            const data2 = JSON.parse(this.responseText);
+            
+            renderCountry(data2, 'neighbour');
+        })
+
+    })
+}
+
+getCountryDataAndNeighbor('germany');
+
+
+
+///
+//using promises to control flow of async callbacks
+///
+
