@@ -66,7 +66,7 @@ const renderCountry = function(data, className = '') {
         countriesContainer.style.opacity = 1;
 }
 
-const getCountryDataAndNeighbor = function(country) {
+/*const getCountryDataAndNeighbor = function(country) {
     const request = new XMLHttpRequest();
     request.open('GET', `https://restcountries.eu/rest/v2/name/${country}`);
     request.send();
@@ -95,7 +95,7 @@ const getCountryDataAndNeighbor = function(country) {
     })
 }
 
-getCountryDataAndNeighbor('germany');
+getCountryDataAndNeighbor('germany'); */
 
 
 
@@ -103,3 +103,26 @@ getCountryDataAndNeighbor('germany');
 //using promises to control flow of async callbacks
 ///
 
+
+//const request = new XMLHttpRequest();
+//request.open('GET', `https://restcountries.eu/rest/v2/name/${country}`);
+
+//const request = fetch(`https://restcountries.eu/rest/v2/name/portugal`);
+
+const getCountryData = function(country) {
+    fetch(`https://restcountries.eu/rest/v2/name/${country}`)
+    .then(response => response.json())
+    .then(data => {
+        renderCountry(data[0])
+        const neighbor = data[0].borders[0];
+
+        if(!neighbor) return;
+
+        return fetch(`https://restcountries.eu/rest/v2/alpha/${neighbor}`);
+        
+    })
+    .then(response => response.json())
+    .then(data => renderCountry(data, 'neighbour'));
+}
+
+getCountryData('portugal');
