@@ -46,9 +46,7 @@ getCountryData('united states of america'); */
 ///
 
 const renderCountry = function(data, className = '') {
-    
-        console.log(data);
-    
+
         const html = `
         <article class="country ${className}">
             <img class="country__img" src="${data.flag}" />
@@ -62,8 +60,7 @@ const renderCountry = function(data, className = '') {
         </article>`;
     
         countriesContainer.insertAdjacentHTML('beforeend', html);
-    
-        countriesContainer.style.opacity = 1;
+
 }
 
 /*const getCountryDataAndNeighbor = function(country) {
@@ -109,20 +106,29 @@ getCountryDataAndNeighbor('germany'); */
 
 //const request = fetch(`https://restcountries.eu/rest/v2/name/portugal`);
 
+const getJson = function(url, errorMsg = 'Something went wrong.') {
+    return fetch(url)
+    .then(response => {
+        if(!response.ok) throw new Error(`${errorMsg}`);
+
+        return response.json();
+    });
+}
+
 const getCountryData = function(country) {
-    fetch(`https://restcountries.eu/rest/v2/name/${country}`)
-    .then(response => response.json())
+    getJson(`https://restcountries.eu/rest/v2/name/${country}`, "Country not found.")
     .then(data => {
         renderCountry(data[0])
         const neighbor = data[0].borders[0];
 
-        if(!neighbor) return;
+        if(!neighbor) throw new Error("Country does not have bordering neighbor.");
 
-        return fetch(`https://restcountries.eu/rest/v2/alpha/${neighbor}`);
+        return getJson(`https://restcountries.eu/rest/v2/alpha/${neighbor}`, "Neighbor country not found.");
         
     })
-    .then(response => response.json())
-    .then(data => renderCountry(data, 'neighbour'));
+    .then(data => renderCountry(data, 'neighbour'))
+    .catch(err => alert(err.message))
+    .finally(() => countriesContainer.style.opacity = 1);
 }
 
-getCountryData('portugal');
+getCountryData('philippines');
