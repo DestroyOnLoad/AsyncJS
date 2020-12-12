@@ -145,17 +145,22 @@ const getPosition = function() {
 }
 
 const getLocation = async function(){
-    const pos = await getPosition();
+    try {const pos = await getPosition();
     const {latitude: lat, longitude: lng} = pos.coords;
 
     const resGeo = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    if(!resGeo.ok) throw new Error("Problem with getting country for location.")
     const dataGeo = await resGeo.json();
-    console.log(dataGeo);
+
     const res = await fetch(`https://restcountries.eu/rest/v2/name/${dataGeo.prov}`);
+    if(!res.ok) throw new Error("Problem getting data for country specified.");
     const data = await res.json();
-    console.log(data[0])
-    renderCountry(data[0]);
+
+    renderCountry(data[0]);} catch(err){
+        console.error(err);
+    } finally {
     countriesContainer.style.opacity = 1;
+    }
 };
 
 getLocation();
